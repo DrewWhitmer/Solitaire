@@ -90,9 +90,6 @@ function CardClass:new(s,n,f,g,grabbed,xPos,yPos)
 end
 
 function CardClass:update()
-  if self.grabbed then
-    self.pos = Vector(love.mouse.getX() - .5*CARD_WIDTH, love.mouse.getY() - .5*CARD_HEIGHT)
-  end
   
 end
 
