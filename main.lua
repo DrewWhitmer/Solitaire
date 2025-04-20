@@ -32,15 +32,15 @@ function love.load()
   
   stackTable = {}
   
-  table.insert(stackTable, StackClass:new({}, 200, 100, CARD_OFFSET,false))
-  table.insert(stackTable, StackClass:new({}, 300, 100, CARD_OFFSET,false))
-  table.insert(stackTable, StackClass:new({}, 400, 100, CARD_OFFSET,false))
-  table.insert(stackTable, StackClass:new({}, 500, 100, CARD_OFFSET,false))
-  table.insert(stackTable, StackClass:new({}, 600, 100, CARD_OFFSET,false))
-  table.insert(stackTable, StackClass:new({}, 700, 100, CARD_OFFSET,false))
-  table.insert(stackTable, StackClass:new({}, 800, 100, CARD_OFFSET,false))
+  table.insert(stackTable, StackClass:new({}, 200, 200, CARD_OFFSET,false))
+  table.insert(stackTable, StackClass:new({}, 300, 200, CARD_OFFSET,false))
+  table.insert(stackTable, StackClass:new({}, 400, 200, CARD_OFFSET,false))
+  table.insert(stackTable, StackClass:new({}, 500, 200, CARD_OFFSET,false))
+  table.insert(stackTable, StackClass:new({}, 600, 200, CARD_OFFSET,false))
+  table.insert(stackTable, StackClass:new({}, 700, 200, CARD_OFFSET,false))
+  table.insert(stackTable, StackClass:new({}, 800, 200, CARD_OFFSET,false))
   
-  
+  math.randomseed(os.time())
   --Modern Fisher-Yates
   local cardCount = #deck
   for i = 1, cardCount do
@@ -63,8 +63,15 @@ function love.load()
     end
     stackTable[i]:update()
   end
+  print(stackTable[4].cards[2].num)
   
   table.insert(stackTable,newCardStack)
+  
+  table.insert(stackTable, StackClass:new({}, 200, 50, 0, true, 'hearts'))
+  table.insert(stackTable, StackClass:new({}, 400, 50, 0, true, 'diamonds'))
+  table.insert(stackTable, StackClass:new({}, 600, 50, 0, true, 'clubs'))
+  table.insert(stackTable, StackClass:new({}, 800, 50, 0, true, 'spades'))
+  
   check1 = false
   check2 = false
   
@@ -184,7 +191,4 @@ function love.draw()
     card:draw()
   end
   
-  for _, card in ipairs(newCardStack.cards) do
-    card:draw()
-  end
 end

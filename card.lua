@@ -31,7 +31,7 @@ function CardClass:new(s,n,f,g,grabbed,xPos,yPos)
   if card.suit == 'spades' then
     if 11 > card.num and card.num > 4 then
       card.quad = love.graphics.newQuad(0, 1710 - (card.num - 5)*IMAGE_HEIGHT, IMAGE_WIDTH, IMAGE_HEIGHT, faceImg)
-    elseif card.num < 5 then
+    elseif 1 < card.num  and card.num < 5 then
       card.quad = love.graphics.newQuad(140, 380 - (card.num -2)*IMAGE_HEIGHT, IMAGE_WIDTH, IMAGE_HEIGHT, faceImg)
     elseif card.num == 1 then
       card.quad = love.graphics.newQuad(0, 570, IMAGE_WIDTH, IMAGE_HEIGHT, faceImg)
@@ -49,6 +49,8 @@ function CardClass:new(s,n,f,g,grabbed,xPos,yPos)
       card.quad = love.graphics.newQuad(140, 1710 - (card.num - 9)*IMAGE_HEIGHT, IMAGE_WIDTH, IMAGE_HEIGHT, faceImg)
     elseif card.num == 1 then
       card.quad = love.graphics.newQuad(140, 1330, IMAGE_WIDTH, IMAGE_HEIGHT, faceImg)
+    elseif card.num == 2 then
+      card.quad = love.graphics.newQuad(700, 380, IMAGE_WIDTH, IMAGE_HEIGHT, faceImg)
     elseif card.num == 11 then
       card.quad = love.graphics.newQuad(140, 1140, IMAGE_WIDTH, IMAGE_HEIGHT, faceImg)
     elseif card.num == 13 then

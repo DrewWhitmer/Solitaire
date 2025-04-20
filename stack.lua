@@ -3,7 +3,7 @@ StackClass = {}
 require "vector"
 require "card"
 
-function StackClass:new(cardTable, xPos, yPos, off, finStack)
+function StackClass:new(cardTable, xPos, yPos, off, finStack, suit)
   stack = {}
   local metadata = {__index = StackClass}
   setmetatable(stack, metadata)
@@ -12,6 +12,11 @@ function StackClass:new(cardTable, xPos, yPos, off, finStack)
   stack.cards = cardTable
   stack.offset = off
   stack.final = finStack
+  stack.suit = suit
+  if suit ~= nil then
+    stack.image = love.graphics.newImage('/assets/' .. stack.suit .. '.png')
+    print(stack.image)
+  end
   for index, card in ipairs(stack.cards) do
     card.pos = Vector(stack.pos.x, stack.pos.y + (stack.offset*index))
   end
@@ -41,8 +46,8 @@ function StackClass:update()
 end
 
 function StackClass:draw()
-  if self.finStack then
-    --add finstack image
+  if self.final then
+    love.graphics.draw(self.image, self.pos.x, self.pos.y)
     return
   else
     return
