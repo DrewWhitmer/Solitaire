@@ -32,13 +32,13 @@ function love.load()
   
   stackTable = {}
   
-  table.insert(stackTable, StackClass:new({}, 200, 100, CARD_OFFSET))
-  table.insert(stackTable, StackClass:new({}, 300, 100, CARD_OFFSET))
-  table.insert(stackTable, StackClass:new({}, 400, 100, CARD_OFFSET))
-  table.insert(stackTable, StackClass:new({}, 500, 100, CARD_OFFSET))
-  table.insert(stackTable, StackClass:new({}, 600, 100, CARD_OFFSET))
-  table.insert(stackTable, StackClass:new({}, 700, 100, CARD_OFFSET))
-  table.insert(stackTable, StackClass:new({}, 800, 100, CARD_OFFSET))
+  table.insert(stackTable, StackClass:new({}, 200, 100, CARD_OFFSET,false))
+  table.insert(stackTable, StackClass:new({}, 300, 100, CARD_OFFSET,false))
+  table.insert(stackTable, StackClass:new({}, 400, 100, CARD_OFFSET,false))
+  table.insert(stackTable, StackClass:new({}, 500, 100, CARD_OFFSET,false))
+  table.insert(stackTable, StackClass:new({}, 600, 100, CARD_OFFSET,false))
+  table.insert(stackTable, StackClass:new({}, 700, 100, CARD_OFFSET,false))
+  table.insert(stackTable, StackClass:new({}, 800, 100, CARD_OFFSET,false))
   
   
   --Modern Fisher-Yates
@@ -52,7 +52,7 @@ function love.load()
   end
   
   grabStack = StackClass:new(deck,50,50,0)
-  newCardStack = StackClass:new({},50,120,0)
+  newCardStack = StackClass:new({},50,170,CARD_OFFSET,false)
   tempStack = {}
   
   for i = 1, 7 do
@@ -64,7 +64,9 @@ function love.load()
     stackTable[i]:update()
   end
   
-  check = false
+  table.insert(stackTable,newCardStack)
+  check1 = false
+  check2 = false
   
   
 end
@@ -76,8 +78,8 @@ function love.update()
   for _, stack in ipairs(stackTable) do
     for index, card in ipairs(stack.cards) do
       --checks if grab is happening and if the grab position is on the card
-      if grabber.grabPos ~= nil and check == false and grabber.grabPos.x >= card.pos.x and grabber.grabPos.x <= card.pos.x + CARD_WIDTH and grabber.grabPos.y >= card.pos.y and grabber.grabPos.y <= card.pos.y + CARD_HEIGHT and card.grabbable == true and card.grabbed ~= true then 
-        check = true
+      if grabber.grabPos ~= nil and check1 == false and grabber.grabPos.x >= card.pos.x and grabber.grabPos.x <= card.pos.x + CARD_WIDTH and grabber.grabPos.y >= card.pos.y and grabber.grabPos.y <= card.pos.y + CARD_HEIGHT and card.grabbable == true and card.grabbed ~= true then 
+        check1 = true
         -- sets current card to grabbed
         card.grabbed = true
         lowest = index
@@ -99,7 +101,7 @@ function love.update()
       if card.grabbed == true and grabber.grabPos == nil then
         --lets go of the card when the player releases
         card.grabbed = false
-        check = false
+        check1 = false
         for _, newStack in ipairs(stackTable) do 
           if grabber.currentMousePos.x >= newStack.pos.x and grabber.currentMousePos.x <= newStack.pos.x + CARD_WIDTH and grabber.currentMousePos.y >= newStack.pos.y and grabber.currentMousePos.y <= newStack.pos.y + ((#newStack.cards)*newStack.offset + CARD_HEIGHT) then
             table.remove(stack.cards, index)
@@ -116,40 +118,63 @@ function love.update()
   end
   
   
-  --fix this later
-  if grabber.grabPos ~= nil and grabber.grabPos.x >= grabStack.pos.x and grabber.grabPos.x <= grabStack.pos.x + CARD_WIDTH and grabber.grabPos.y >= grabStack.pos.y and grabber.grabPos.y <= grabStack.pos.y + CARD_HEIGHT then
+  --if player clicks on deck, 3 cards will be drawn
+  if grabber.grabPos ~= nil and grabber.grabPos.x >= grabStack.pos.x and grabber.grabPos.x <= grabStack.pos.x + CARD_WIDTH and grabber.grabPos.y >= grabStack.pos.y and grabber.grabPos.y <= grabStack.pos.y + CARD_HEIGHT and check2 == false then
+    check2 = true
     if #grabStack.cards == 0 then
       while #tempStack ~= 0 do
+        tempStack[1].flipped = true
         table.insert(grabStack.cards,tempStack[1])
         table.remove(tempStack,1)
       end
     elseif #newCardStack.cards == 0 then
-      table.insert(newCardStack.cards, grabStack.cards[1])
-      table.insert(newCardStack.cards, grabStack.cards[2])
-      table.insert(newCardStack.cards, grabStack.cards[3])
-      table.remove(grabStack.cards,1)
-      table.remove(grabStack.cards,1)
-      table.remove(grabStack.cards,1)
+      removeAndInsert(grabStack.cards,newCardStack.cards)
+      grabStack:update()
+      newCardStack:update()
     else
-      table.insert(tempStack, newCardStack.cards[1])
-      table.insert(tempStack, newCardStack.cards[2])
-      table.insert(tempStack, newCardStack.cards[3])
-      table.remove(newCardStack.cards,1)
-      table.remove(newCardStack.cards,1)
-      table.remove(newCardStack.cards,1)
-      table.insert(newCardStack.cards, grabStack.cards[1])
-      table.insert(newCardStack.cards, grabStack.cards[2])
-      table.insert(newCardStack.cards, grabStack.cards[3])
-      table.remove(grabStack.cards,1)
-      table.remove(grabStack.cards,1)
-      table.remove(grabStack.cards,1)
+      removeAndInsert(newCardStack.cards,tempStack)
+      removeAndInsert(grabStack.cards,newCardStack.cards)
+      grabStack:update()
+      newCardStack:update()
     end
   end
+  
+  --makes sure cards in the grab stack are flipped
+  for _,card in ipairs(grabStack.cards) do
+    card.flipped = true
+  end
+  
+  --moves cards in temp stack away from player view
+  for _,card in ipairs(tempStack) do
+    card.pos = Vector(love.window.getMode())
+  end
+  
+  if grabber.grabPos == nil then
+    check2 = false
+  end
+  
+end
 
+function removeAndInsert(t1,t2)
+  if(#t1 >= 3) then
+    j = 3
+  elseif #t1 == 0 then
+    return
+  else
+    j = #t1
+  end
+  
+  for i = 1,j do
+    t1[1].flipped = false
+    table.insert(t2,t1[1])
+    table.remove(t1,1)
+  end
+  
 end
 
 function love.draw()
   for _, stack in ipairs(stackTable) do
+    stack:draw()
     for _, card in ipairs(stack.cards) do
       card:draw()
     end
