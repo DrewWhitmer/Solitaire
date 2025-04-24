@@ -35,7 +35,7 @@ function StackClass:update()
       card.grabbable = true
     end
     
-    if self.finStack then
+    if self.final then
       card.grabbable = false
       card.flipped = false
     end

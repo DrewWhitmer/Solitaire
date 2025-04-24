@@ -40,7 +40,7 @@ function love.load()
   table.insert(stackTable, StackClass:new({}, 700, 200, CARD_OFFSET,false))
   table.insert(stackTable, StackClass:new({}, 800, 200, CARD_OFFSET,false))
   
-  math.randomseed(os.time())
+  math.randomseed(10)
   --Modern Fisher-Yates
   local cardCount = #deck
   for i = 1, cardCount do
@@ -75,6 +75,7 @@ function love.load()
   check1 = false
   check2 = false
   
+  holder = {}
   
 end
 
@@ -85,7 +86,13 @@ function love.update()
   for _, stack in ipairs(stackTable) do
     for index, card in ipairs(stack.cards) do
       --checks if grab is happening and if the grab position is on the card
-      if grabber.grabPos ~= nil and check1 == false and grabber.grabPos.x >= card.pos.x and grabber.grabPos.x <= card.pos.x + CARD_WIDTH and grabber.grabPos.y >= card.pos.y and grabber.grabPos.y <= card.pos.y + CARD_HEIGHT and card.grabbable == true and card.grabbed ~= true then 
+      if grabber.grabPos ~= nil and check1 == false and grabber.grabPos.x >= card.pos.x and grabber.grabPos.x <= card.pos.x + CARD_WIDTH and grabber.grabPos.y >= card.pos.y and grabber.grabPos.y <= card.pos.y + CARD_HEIGHT and card.grabbable == true and card.grabbed ~= true then
+        if (#holder ~= 0) then
+          print("refresh")
+          print(holder[1][1].num, holder[1][1].suit)
+          print(#holder)
+        end
+        holder = {}
         check1 = true
         -- sets current card to grabbed
         card.grabbed = true
@@ -105,14 +112,26 @@ function love.update()
         end
       end
   
-      if card.grabbed == true and grabber.grabPos == nil then
+      if card.grabbed and grabber.grabPos == nil then
         --lets go of the card when the player releases
         card.grabbed = false
         check1 = false
         for _, newStack in ipairs(stackTable) do 
           if grabber.currentMousePos.x >= newStack.pos.x and grabber.currentMousePos.x <= newStack.pos.x + CARD_WIDTH and grabber.currentMousePos.y >= newStack.pos.y and grabber.currentMousePos.y <= newStack.pos.y + ((#newStack.cards)*newStack.offset + CARD_HEIGHT) then
-            table.remove(stack.cards, index)
-            table.insert(newStack.cards, card)
+            --make sure it goes in correct order, also prevents cheating
+            if newStack.final and card.num == #newStack.cards + 1 and card.suit == newStack.suit then
+              table.insert(newStack.cards, card)
+              table.remove(stack.cards, index)
+            elseif #newStack.cards == 0 then
+              if card.num == 13 then
+                table.insert(newStack.cards, card)
+                table.remove(stack.cards, index)
+              end
+            elseif newStack.pos.x == stack.pos.x and newStack.pos.y == stack.pos.y then
+              --do nothing!!!!
+            elseif not newStack.final then
+              checkCard(stack, newStack, card, index)
+            end
           end
         end
       end
@@ -121,6 +140,17 @@ function love.update()
         grabbedCards = grabbedCards + 1
       end
     end
+    for _, newStack in ipairs(stackTable) do
+      for i, cardInfo in ipairs(holder) do
+        if #newStack.cards > 0 then
+          print("check")
+          print("update")
+          print(cardInfo[1].suit, cardInfo[1].num, cardInfo[2])
+          checkCard(stack, newStack, cardInfo[1], cardInfo[2])
+        end
+      end
+    end
+    holder = {}
     stack:update()
   end
   
@@ -151,6 +181,13 @@ function love.update()
     card.flipped = true
   end
   
+  if #newCardStack.cards ~= 0 then
+    for _, card in ipairs(newCardStack.cards) do
+      card.grabbable = false
+    end
+    newCardStack.cards[#newCardStack.cards].grabbable = true
+  end
+  
   --moves cards in temp stack away from player view
   for _,card in ipairs(tempStack) do
     card.pos = Vector(love.window.getMode())
@@ -175,6 +212,65 @@ function removeAndInsert(t1,t2)
     t1[1].flipped = false
     table.insert(t2,t1[1])
     table.remove(t1,1)
+  end
+  
+end
+
+function checkCard(stack1, stack2, card, index)
+  print("checking")
+  print(card.suit, card.num, index)
+  if card.num == stack2.cards[#stack2.cards].num - 1 and (stack2.cards[#stack2.cards].suit == 'diamonds' or stack2.cards[#stack2.cards].suit == 'hearts') and (card.suit == 'clubs' or card.suit == 'spades') then 
+    print("place")
+    print(card.suit, card.num, index)
+    table.insert(stack2.cards, card)
+    table.remove(stack1.cards, index)
+    local check3 = 0
+    for i, cardInfo in ipairs(holder) do
+      if cardInfo[1].num == stack2.cards[#stack2.cards].num then
+        check3 = i
+      elseif holder ~= 0 then
+        print("check")
+        print(cardInfo[1].suit, cardInfo[1].num, cardInfo[2])
+        --checkCard(stack1, stack2, cardInfo[1], cardInfo[2])
+      end
+    end
+    if check3 <= #holder and #holder ~= 0 and check3 ~= 0 then
+      print("delete")
+      print(holder[check3][1].suit, holder[check3][1].num, holder[check3][2])
+      --table.remove(holder, check3)
+    end
+  elseif card.num == stack2.cards[#stack2.cards].num - 1 and (stack2.cards[#stack2.cards].suit == 'clubs' or stack2.cards[#stack2.cards].suit == 'spades') and (card.suit == 'diamonds' or card.suit == 'hearts') then 
+    print("place")
+    print(card.suit, card.num, index)
+    table.insert(stack2.cards, card)
+    table.remove(stack1.cards, index)
+    local check3 = 0
+    for i, cardInfo in ipairs(holder) do
+      if cardInfo[1].num == stack2.cards[#stack2.cards].num then
+        check3 = i
+      elseif holder ~= 0 and holder[1][1].suit == cardInfo[1].suit then
+        print("check")
+        print(cardInfo[1].suit, cardInfo[1].num, cardInfo[2])
+        --checkCard(stack1, stack2, cardInfo[1], cardInfo[2])
+      end
+    end
+    if check3 <= #holder and #holder ~= 0 and check3 ~= 0 then
+      print("delete")
+      print(holder[check3][1].suit, holder[check3][1].num, holder[check3][2])
+      --table.remove(holder, check3)
+    end
+  else
+    local check3 = false
+    for _, cardInfo in ipairs(holder) do
+      if cardInfo[1].num == card.num and card.suit == cardInfo[1].suit or cardInfo[1].num >= stack2.cards[#stack2.cards].num then
+        check3 = true
+      end
+    end
+    if not check3 then 
+      table.insert(holder, {card, index})
+      print("insert")
+      print(card.num, card.suit, index)
+    end
   end
   
 end
