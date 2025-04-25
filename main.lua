@@ -16,7 +16,7 @@ function love.load()
   grabber = GrabberClass:new()
   deck = {}
   
-  --put all cards in one table
+  --put all cards into one table
   for i = 1, 13 do
     table.insert(deck, CardClass:new('clubs',i,true,true,false,0,0))
   end
@@ -40,7 +40,7 @@ function love.load()
   table.insert(stackTable, StackClass:new({}, 700, 200, CARD_OFFSET,false))
   table.insert(stackTable, StackClass:new({}, 800, 200, CARD_OFFSET,false))
   
-  math.randomseed(10)
+  math.randomseed(os.time())
   --Modern Fisher-Yates
   local cardCount = #deck
   for i = 1, cardCount do
@@ -63,7 +63,6 @@ function love.load()
     end
     stackTable[i]:update()
   end
-  print(stackTable[4].cards[2].num)
   
   table.insert(stackTable,newCardStack)
   
@@ -75,7 +74,6 @@ function love.load()
   check1 = false
   check2 = false
   
-  holder = {}
   
 end
 
@@ -87,12 +85,6 @@ function love.update()
     for index, card in ipairs(stack.cards) do
       --checks if grab is happening and if the grab position is on the card
       if grabber.grabPos ~= nil and check1 == false and grabber.grabPos.x >= card.pos.x and grabber.grabPos.x <= card.pos.x + CARD_WIDTH and grabber.grabPos.y >= card.pos.y and grabber.grabPos.y <= card.pos.y + CARD_HEIGHT and card.grabbable == true and card.grabbed ~= true then
-        if (#holder ~= 0) then
-          print("refresh")
-          print(holder[1][1].num, holder[1][1].suit)
-          print(#holder)
-        end
-        holder = {}
         check1 = true
         -- sets current card to grabbed
         card.grabbed = true
@@ -127,9 +119,7 @@ function love.update()
                 table.insert(newStack.cards, card)
                 table.remove(stack.cards, index)
               end
-            elseif newStack.pos.x == stack.pos.x and newStack.pos.y == stack.pos.y then
-              --do nothing!!!!
-            elseif not newStack.final then
+            elseif not newStack.final and (newStack.pos.x ~= stack.pos.x or newStack.pos.y ~= stack.pos.y) then
               checkCard(stack, newStack, card, index)
             end
           end
@@ -140,17 +130,6 @@ function love.update()
         grabbedCards = grabbedCards + 1
       end
     end
-    for _, newStack in ipairs(stackTable) do
-      for i, cardInfo in ipairs(holder) do
-        if #newStack.cards > 0 then
-          print("check")
-          print("update")
-          print(cardInfo[1].suit, cardInfo[1].num, cardInfo[2])
-          checkCard(stack, newStack, cardInfo[1], cardInfo[2])
-        end
-      end
-    end
-    holder = {}
     stack:update()
   end
   
@@ -217,60 +196,12 @@ function removeAndInsert(t1,t2)
 end
 
 function checkCard(stack1, stack2, card, index)
-  print("checking")
-  print(card.suit, card.num, index)
   if card.num == stack2.cards[#stack2.cards].num - 1 and (stack2.cards[#stack2.cards].suit == 'diamonds' or stack2.cards[#stack2.cards].suit == 'hearts') and (card.suit == 'clubs' or card.suit == 'spades') then 
-    print("place")
-    print(card.suit, card.num, index)
     table.insert(stack2.cards, card)
     table.remove(stack1.cards, index)
-    local check3 = 0
-    for i, cardInfo in ipairs(holder) do
-      if cardInfo[1].num == stack2.cards[#stack2.cards].num then
-        check3 = i
-      elseif holder ~= 0 then
-        print("check")
-        print(cardInfo[1].suit, cardInfo[1].num, cardInfo[2])
-        --checkCard(stack1, stack2, cardInfo[1], cardInfo[2])
-      end
-    end
-    if check3 <= #holder and #holder ~= 0 and check3 ~= 0 then
-      print("delete")
-      print(holder[check3][1].suit, holder[check3][1].num, holder[check3][2])
-      --table.remove(holder, check3)
-    end
   elseif card.num == stack2.cards[#stack2.cards].num - 1 and (stack2.cards[#stack2.cards].suit == 'clubs' or stack2.cards[#stack2.cards].suit == 'spades') and (card.suit == 'diamonds' or card.suit == 'hearts') then 
-    print("place")
-    print(card.suit, card.num, index)
     table.insert(stack2.cards, card)
     table.remove(stack1.cards, index)
-    local check3 = 0
-    for i, cardInfo in ipairs(holder) do
-      if cardInfo[1].num == stack2.cards[#stack2.cards].num then
-        check3 = i
-      elseif holder ~= 0 and holder[1][1].suit == cardInfo[1].suit then
-        print("check")
-        print(cardInfo[1].suit, cardInfo[1].num, cardInfo[2])
-        --checkCard(stack1, stack2, cardInfo[1], cardInfo[2])
-      end
-    end
-    if check3 <= #holder and #holder ~= 0 and check3 ~= 0 then
-      print("delete")
-      print(holder[check3][1].suit, holder[check3][1].num, holder[check3][2])
-      --table.remove(holder, check3)
-    end
-  else
-    local check3 = false
-    for _, cardInfo in ipairs(holder) do
-      if cardInfo[1].num == card.num and card.suit == cardInfo[1].suit or cardInfo[1].num >= stack2.cards[#stack2.cards].num then
-        check3 = true
-      end
-    end
-    if not check3 then 
-      table.insert(holder, {card, index})
-      print("insert")
-      print(card.num, card.suit, index)
-    end
   end
   
 end

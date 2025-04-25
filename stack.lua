@@ -15,7 +15,6 @@ function StackClass:new(cardTable, xPos, yPos, off, finStack, suit)
   stack.suit = suit
   if suit ~= nil then
     stack.image = love.graphics.newImage('/assets/' .. stack.suit .. '.png')
-    print(stack.image)
   end
   for index, card in ipairs(stack.cards) do
     card.pos = Vector(stack.pos.x, stack.pos.y + (stack.offset*index))
@@ -49,8 +48,7 @@ function StackClass:draw()
   if self.final then
     love.graphics.draw(self.image, self.pos.x, self.pos.y)
     return
-  else
-    return
   end
+  return
 end
 

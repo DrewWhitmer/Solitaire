@@ -30,12 +30,10 @@ function GrabberClass:update()
 end
 
 function GrabberClass:grab()
-  print("GRAB")
   self.grabPos = self.currentMousePos
 end
 
 function GrabberClass:release()
-  print("RELEASE")
   
   self.grabPos = nil
   
