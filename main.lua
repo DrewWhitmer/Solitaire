@@ -3,11 +3,20 @@
 -- 4/8/2025
 io.stdout:setvbuf("no")
 
+iffy = require "iffy"
+iffy.newAtlas("/assets/playingCards.png")
 require "card"
 require "grabber"
 require "stack"
 
 CARD_OFFSET = 20
+SUITS = {
+  CLUBS = "Clubs",
+  SPADES = "Spades",
+  HEARTS = "Hearts",
+  DIAMONDS = "Diamonds"
+}
+
 
 function love.load()
   love.window.setMode(960, 640)
@@ -18,16 +27,16 @@ function love.load()
   
   --put all cards into one table
   for i = 1, 13 do
-    table.insert(deck, CardClass:new('clubs',i,true,true,false,0,0))
+    table.insert(deck, CardClass:new(SUITS.CLUBS, i, true, true, false, 0, 0))
   end
   for i = 1, 13 do
-    table.insert(deck, CardClass:new('hearts',i,true,true,false,0,0))
+    table.insert(deck, CardClass:new(SUITS.SPADES, i, true, true, false, 0, 0))
   end
   for i = 1, 13 do
-    table.insert(deck, CardClass:new('spades',i,true,true,false,0,0))
+    table.insert(deck, CardClass:new(SUITS.DIAMONDS, i, true, true, false, 0, 0))
   end
   for i = 1, 13 do
-    table.insert(deck, CardClass:new('diamonds',i,true,true,false,0,0))
+    table.insert(deck, CardClass:new(SUITS.HEARTS, i, true, true, false, 0, 0))
   end
   
   stackTable = {}
@@ -66,10 +75,10 @@ function love.load()
   
   table.insert(stackTable,newCardStack)
   
-  table.insert(stackTable, StackClass:new({}, 200, 50, 0, true, 'hearts'))
-  table.insert(stackTable, StackClass:new({}, 400, 50, 0, true, 'diamonds'))
-  table.insert(stackTable, StackClass:new({}, 600, 50, 0, true, 'clubs'))
-  table.insert(stackTable, StackClass:new({}, 800, 50, 0, true, 'spades'))
+  table.insert(stackTable, StackClass:new({}, 200, 50, 0, true, SUITS.HEARTS))
+  table.insert(stackTable, StackClass:new({}, 400, 50, 0, true, SUITS.DIAMONDS))
+  table.insert(stackTable, StackClass:new({}, 600, 50, 0, true, SUITS.CLUBS))
+  table.insert(stackTable, StackClass:new({}, 800, 50, 0, true, SUITS.SPADES))
   
   check1 = false
   check2 = false
@@ -196,10 +205,10 @@ function removeAndInsert(t1,t2)
 end
 
 function checkCard(stack1, stack2, card, index)
-  if card.num == stack2.cards[#stack2.cards].num - 1 and (stack2.cards[#stack2.cards].suit == 'diamonds' or stack2.cards[#stack2.cards].suit == 'hearts') and (card.suit == 'clubs' or card.suit == 'spades') then 
+  if card.num == stack2.cards[#stack2.cards].num - 1 and (stack2.cards[#stack2.cards].suit == SUITS.DIAMONDS or stack2.cards[#stack2.cards].suit == SUITS.HEARTS) and (card.suit == SUITS.CLUBS or card.suit == SUITS.SPADES) then 
     table.insert(stack2.cards, card)
     table.remove(stack1.cards, index)
-  elseif card.num == stack2.cards[#stack2.cards].num - 1 and (stack2.cards[#stack2.cards].suit == 'clubs' or stack2.cards[#stack2.cards].suit == 'spades') and (card.suit == 'diamonds' or card.suit == 'hearts') then 
+  elseif card.num == stack2.cards[#stack2.cards].num - 1 and (stack2.cards[#stack2.cards].suit == SUITS.CLUBS or stack2.cards[#stack2.cards].suit == SUITS.SPADES) and (card.suit == SUITS.DIAMONDS or card.suit == SUITS.HEARTS) then 
     table.insert(stack2.cards, card)
     table.remove(stack1.cards, index)
   end

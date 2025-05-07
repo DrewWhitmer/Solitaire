@@ -8,5 +8,6 @@ There are a lot of things that I think I could have done better. One thing that 
 
 Credit:
 
-Got card faces/backs from https://opengameart.org/content/boardgame-pack, did images for the specific suit stacks myself
+Got card faces/backs from https://opengameart.org/content/boardgame-pack, did images for the specific suit stacks myself.
 Used some lecture code throughout the project, especially in grabber.lua and for the modern fisher-yates method.
+I also use the iffy helper library https://github.com/besnoi/iffy to read the xml file for the card sprites.
