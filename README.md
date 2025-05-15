@@ -1,10 +1,24 @@
 Patterns:
 
-The only pattern that we have covered so far that I really used was the update loops to check for stuff like mouse clicks every frame.
+I used prototypes in order to create different stack classes. This way, instead of having different variables to account for what different types of stacks should do,
+it is hard coded to the different types of stacks, making the classes more readable and expandable.
+
+Feedback:
+
+Nathan Skinner: pointed out some bugs, spacing in tables. I went through and made it so every table has consistent spacing. Bugs were fixed throughout the process of 
+refactoring.
+
+Henry Christopher: clean up main.lua, have helper functions to check for long if statements, change confusing variable names. I changed it so the check variables have
+more specific names, changed it so that certain if statements were spread across a function (stack:checkCard()).
+
+Sean Massa: use grabber class to clean up update loop, use longer variable names when making classes. I changed the names of the constructor variables in card.lua to
+match what they become in the actual class. I used the grabber class to update the moving cards logic.
 
 Postmortem:
 
-There are a lot of things that I think I could have done better. One thing that I think that I did do well was commenting stuff in the code that needed explaining, though I suppose that is hard to say if it is just me looking at the code. For what I would do differently, I think that I would use the state pattern for the cards so that there are not as many different variables that could be assigned to a state. I would also actually read the xml from the code so that there is not just a massive if/else statement for getting the card faces. I would also delegate more stuff to the stack/card classes so that main.lua is not as massive and hard to parce.
+I think that I did a pretty good job refactoring the code. My main goal was to make main.lua and the update loop shorter and more readable, which I think I did a good
+job of. I did this by having the stack class have multiple subclasses for my different needs, as well as spreading the moving card logic to stack.lua and grabber.lua.
+I also wanted to fix the bugs in the previous solitaire in doing so, which I was able to. 
 
 Credit:
 

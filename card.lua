@@ -14,14 +14,14 @@ flippedImg = love.graphics.newImage('/assets/playingCardBacks.png')
 flippedQuad = love.graphics.newQuad(0, 380, IMAGE_WIDTH, IMAGE_HEIGHT, flippedImg) 
 
 
-function CardClass:new(s, n, f, g, grabbed, xPos, yPos)
+function CardClass:new(suit, num, flipped, grabbable, grabbed, xPos, yPos)
   local card = {}
   local metatable = {__index = CardClass}
   setmetatable(card, metatable)
-  card.suit = s
-  card.num = n
-  card.flipped = f
-  card.grabbable = g
+  card.suit = suit
+  card.num = num
+  card.flipped = flipped
+  card.grabbable = grabbable
   card.grabbed = grabbed
   card.pos = Vector(xPos, yPos)
   card.size = Vector(CARD_WIDTH, CARD_HEIGHT)
@@ -41,4 +41,15 @@ function CardClass:draw()
     iffy.drawSprite("card" .. self.suit .. self.num .. '.png', self.pos.x, self.pos.y, 0, self.size.x/IMAGE_WIDTH, self.size.y/IMAGE_HEIGHT)
   end
   
+end
+
+function CardClass:remove(stackTable)
+  for _, stack in ipairs(stackTable) do
+    for index, card in ipairs(stack.cards) do
+      if self.num == card.num and self.suit == card.suit then
+        table.remove(stack.cards, index)
+        return self
+      end
+    end
+  end
 end
